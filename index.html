@@ -80,6 +80,20 @@
   .ic{width:22px;height:22px;border-radius:6px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;}
   .ic.g{background:rgba(34,197,94,.18);color:var(--ok);}.ic.w{background:rgba(245,158,11,.18);color:var(--warn);}
   .banner{background:#241a1c;border:1px solid var(--accent);border-radius:8px;padding:10px 14px;font-size:13px;margin-bottom:16px;}
+  .err{border-color:#ef4444 !important;box-shadow:0 0 0 2px rgba(239,68,68,.25);}
+  .errmsg{color:#ef4444;font-size:13px;margin-top:6px;}
+  .step.done .n{background:var(--ok);color:#fff;}
+  .rangeRow{display:flex;align-items:center;gap:8px;}
+  .rangeRow input[type=range]{flex:1;}
+  .rangeVal{font-size:12px;color:var(--text);min-width:52px;text-align:right;background:var(--panel2);border:1px solid var(--line);border-radius:6px;padding:2px 6px;}
+  .kwbox{border-left:4px solid var(--accent2);padding-left:14px;}
+  .tip{position:relative;display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:50%;background:var(--panel2);border:1px solid var(--line);color:var(--muted);font-size:12px;cursor:help;margin-left:6px;}
+  .tip:hover .tipbox{display:block;}
+  .tipbox{display:none;position:absolute;bottom:140%;left:50%;transform:translateX(-50%);width:230px;background:#000;border:1px solid var(--line);border-radius:8px;padding:8px 10px;font-size:12px;color:var(--text);z-index:20;line-height:1.5;font-weight:400;}
+  @media(max-width:768px){
+    canvas{width:100%;height:auto;}
+    .wrap{overflow-x:hidden;}
+  }
 </style>
 </head>
 <body>
@@ -105,6 +119,13 @@
           <option>健身/健康</option><option>美妝/時尚</option><option>親子/教育</option><option>其他</option>
         </select></div>
         <div><label>影片長度</label><select id="vlen"><option>一般長片</option><option>短影音 Shorts</option></select></div>
+        <div><label>內容方向</label><select id="direction">
+          <option value="auto">自動判斷</option>
+          <option value="A">心靈成長</option>
+          <option value="B">科學驗證</option>
+          <option value="C">人生改造</option>
+          <option value="D">生活挑戰</option>
+        </select></div>
       </div>
       <button class="btn big" id="genTitle">⚡ 一鍵產生 5 款爆款標題</button>
       <p class="note">離線運作、不需連網。依爆款標題公式 + 你的關鍵字，即時產出標題、說明欄、Hashtag、後台標籤。可重複按以換不同組合。</p>
@@ -140,10 +161,10 @@
           <div id="drop" style="border:2px dashed var(--line);border-radius:10px;padding:24px;text-align:center;color:var(--muted);cursor:pointer;font-size:14px;">點此或拖曳上傳<br><span class="small">上傳後可直接在預覽圖上拖曳移動</span></div>
           <input type="file" id="file" accept="image/*" hidden>
           <div class="row" style="margin-top:12px;">
-            <div><label>縮放</label><input type="range" id="imgZoom" min="40" max="260" value="100"></div>
-            <div><label>水平位置</label><input type="range" id="imgX" min="-60" max="160" value="50"></div>
+            <div><label>縮放</label><div class="rangeRow"><input type="range" id="imgZoom" min="40" max="260" value="100"><span class="rangeVal" id="imgZoomV">1.0x</span></div></div>
+            <div><label>水平位置</label><div class="rangeRow"><input type="range" id="imgX" min="-60" max="160" value="50"><span class="rangeVal" id="imgXV">50%</span></div></div>
           </div>
-          <label>垂直位置</label><input type="range" id="imgY" min="-60" max="160" value="40">
+          <label>垂直位置</label><div class="rangeRow"><input type="range" id="imgY" min="-60" max="160" value="40"><span class="rangeVal" id="imgYV">40%</span></div>
           <p class="note">範圍已放寬，可把主角推出邊界做大膽排版。也可直接在右側預覽圖上用滑鼠拖曳。</p>
         </div>
 
@@ -156,6 +177,10 @@
             <div><label>主標大小</label><input type="range" id="mainSize" min="70" max="160" value="110"></div>
             <div><label>主標顏色</label><input type="color" id="mainColor" value="#FFE600" style="width:100%;height:38px;padding:3px;background:var(--panel2);border:1px solid var(--line);border-radius:8px;"></div>
           </div>
+          <div class="row" style="margin-top:8px;">
+            <div><label>主標水平位置</label><div class="rangeRow"><input type="range" id="mainX" min="0" max="100" value="50"><span class="rangeVal" id="mainXV">50%</span></div></div>
+            <div><label>主標垂直位置</label><div class="rangeRow"><input type="range" id="mainY" min="0" max="100" value="42"><span class="rangeVal" id="mainYV">42%</span></div></div>
+          </div>
         </div>
 
         <div class="card">
@@ -167,6 +192,10 @@
           <div class="row" style="margin-top:10px;">
             <div><label>副標大小</label><input type="range" id="subSize" min="34" max="80" value="50"></div>
             <div><label>副標顏色</label><input type="color" id="subColor" value="#FFFFFF" style="width:100%;height:38px;padding:3px;background:var(--panel2);border:1px solid var(--line);border-radius:8px;"></div>
+          </div>
+          <div class="row" style="margin-top:8px;">
+            <div><label>副標水平位置</label><div class="rangeRow"><input type="range" id="subX" min="0" max="100" value="4"><span class="rangeVal" id="subXV">4%</span></div></div>
+            <div><label>副標垂直位置</label><div class="rangeRow"><input type="range" id="subY" min="0" max="100" value="82"><span class="rangeVal" id="subYV">82%</span></div></div>
           </div>
         </div>
 
@@ -183,10 +212,34 @@
         </div>
         </div>
         <div class="card">
-          <h3>固定品牌元素</h3>
-          <label style="display:flex;align-items:center;gap:8px;color:var(--text);font-size:14px;margin:4px 0;"><input type="checkbox" id="brandTag" checked> <span id="tagLabel">「好氣補給站」標籤</span></label>
-          <label style="display:flex;align-items:center;gap:8px;color:var(--text);font-size:14px;margin:4px 0;" id="frameRow"><input type="checkbox" id="brandFrame" checked> 黃色外框 + 黑色內框（版型 A）</label>
-          <label>標籤文字</label><input type="text" id="tagText" value="好氣補給站">
+          <h3>🏷️ 品牌設定 <span class="pill">可建立多品牌，設定後自動記住</span></h3>
+          <label>選擇品牌</label>
+          <div style="display:flex;gap:8px;">
+            <select id="brandSelect" style="flex:1;"></select>
+            <button class="btn sec" id="brandNew" style="white-space:nowrap;padding:8px 12px;">＋ 新品牌</button>
+          </div>
+
+          <label style="margin-top:14px;display:flex;align-items:center;gap:8px;color:var(--text);font-size:14px;"><input type="checkbox" id="brandFrame" checked> 顯示外框（版型 A）</label>
+          <label>外框顏色</label>
+          <input type="color" id="frameColor" value="#F5C518" style="width:100%;height:38px;padding:3px;background:var(--panel2);border:1px solid var(--line);border-radius:8px;">
+
+          <label style="margin-top:12px;display:flex;align-items:center;gap:8px;color:var(--text);font-size:14px;"><input type="checkbox" id="brandTag" checked> 顯示品牌標籤 / Logo</label>
+          <label>標籤文字（無 Logo 時顯示）</label>
+          <input type="text" id="tagText" value="好氣補給站">
+
+          <label style="margin-top:10px;">品牌 Logo（上傳後取代文字標籤）</label>
+          <div style="display:flex;gap:8px;align-items:center;">
+            <button class="btn sec" id="logoBtn" style="padding:8px 12px;">上傳 Logo</button>
+            <input type="file" id="logoFile" accept="image/*" hidden>
+            <span class="small" id="logoName">尚未上傳（使用文字標籤）</span>
+            <button class="btn sec" id="logoClear" style="padding:6px 10px;font-size:12px;display:none;">移除</button>
+          </div>
+
+          <div style="display:flex;gap:8px;margin-top:14px;">
+            <button class="btn" id="brandSave" style="flex:1;">💾 儲存此品牌</button>
+            <button class="btn sec" id="brandDelete" style="white-space:nowrap;">刪除</button>
+          </div>
+          <p class="note">品牌設定會記在這個瀏覽器，下次打開自動帶回。換電腦或清除瀏覽器資料會需要重設。</p>
         </div>
       </div>
     </div>
@@ -196,7 +249,7 @@
     <div class="card">
       <h3>上架前優化檢查 <span class="pill">已選的標題/說明會自動帶入</span></h3>
       <label>影片標題</label><input type="text" id="cTitle">
-      <label>說明欄文字</label><textarea id="cDesc" style="min-height:120px;"></textarea>
+      <label>說明欄文字</label><textarea id="cDesc" style="min-height:120px;overflow:hidden;resize:none;"></textarea>
       <label>Hashtag</label><input type="text" id="cHash" placeholder="#理財 #存錢 #投資">
       <label>後台影片標籤 tags（逗號分隔）</label><input type="text" id="cTags">
       <button class="btn big" id="runCheck">執行檢查</button>
@@ -208,6 +261,12 @@
 <script>
 /* ---- shared state ---- */
 const S={title:'',subtitle:'',desc:'',hashtags:[],tags:[],keyword:''};
+const completedSteps={title:false,thumb:false,check:false};
+function markStep(s){
+  completedSteps[s]=true;
+  const el=document.querySelector('.step[data-s="'+s+'"]');
+  if(el){el.classList.add('done');const n=el.querySelector('.n');if(n)n.textContent='✓';}
+}
 
 /* ---- stepper ---- */
 document.querySelectorAll('.step').forEach(b=>b.onclick=()=>go(b.dataset.s));
@@ -219,11 +278,13 @@ function go(s){
   if(s==='check')syncCheck();
   window.scrollTo({top:0,behavior:'smooth'});
 }
+function autoGrow(el){if(!el)return;el.style.height='auto';el.style.height=el.scrollHeight+'px';}
 function syncCheck(){
   if(S.title&&!document.getElementById('cTitle').value)document.getElementById('cTitle').value=S.title;
   if(S.desc&&!document.getElementById('cDesc').value)document.getElementById('cDesc').value=S.desc;
   if(S.hashtags.length&&!document.getElementById('cHash').value)document.getElementById('cHash').value=S.hashtags.join(' ');
   if(S.tags.length&&!document.getElementById('cTags').value)document.getElementById('cTags').value=S.tags.join(', ');
+  autoGrow(document.getElementById('cDesc'));
 }
 function shortify(t){return t.replace(/[｜|].*$/,'').slice(0,8);}
 
@@ -276,39 +337,102 @@ const NICHE_KW={
   '親子/教育':['方法','技巧','實用','新手爸媽','陪伴','成長'],
   '其他':['推薦','心得','實測','分享','方法','懶人包']
 };
-/* 標題公式骨架：{kw}=關鍵字 {n}=數字。分兩組：A=動作型(適合動詞短語)，B=名詞安全型(任何詞都通順) */
-const TITLE_FORMULAS=[
-  '關於{kw}，這{n}件事沒人告訴你',
-  '{kw}最大的謊言，沒人敢跟你說',
-  '99%的人都搞錯的{kw}，問題出在這',
-  '為什麼有錢人都在研究{kw}？',
-  '{kw}的真相，跟你想的完全不一樣',
-  '醫生不會告訴你的{kw}真相',
-  '看完這支，你會重新認識{kw}',
-  '{kw}入門必看！新手最常踩的{n}個雷',
-  '我研究{kw}{n}個月後，徹底改觀',
-  '別再亂搞{kw}了！先看完這支再說',
-  '原來高手都這樣看待{kw}',
-  '{kw}做對這{n}件事，效果差超多'
+/* ===== 合規語意轉換系統 ===== */
+/* 合規語言對照表：療效宣稱 → 合規替換 */
+const COMPLIANCE_MAP=[
+  [/改善失眠|治好失眠|治療失眠/g,'睡眠品質有感調整'],
+  [/消除焦慮|不容易焦慮|不再焦慮|改善焦慮/g,'身心狀態更穩定'],
+  [/治病|調理疾病|治療|療癒/g,'調整體質'],
+  [/身體變健康|變健康/g,'身體狀態明顯不同'],
+  [/排毒|有效排毒/g,'身體循環更順暢'],
+  [/增強免疫力|提升免疫/g,'調整體質'],
+  [/減輕痛症|消除疼痛|止痛/g,'身體緊繃感減少'],
+  [/抗老|變年輕|回春|抗老回春/g,'狀態看起來有變化'],
+  [/情緒崩潰|崩潰/g,'日常狀態調整'],
+  [/改善(.{0,4})症狀/g,'調整$1的日常習慣'],
+  [/瘦身|減肥/g,'促進新陳代謝']
 ];
-/* 副標題骨架：強化點擊動機、有記憶點 */
-const SUBTITLE_FORMULAS=[
-  '99%的人都做錯，看完你就懂了',
-  '不用花錢、不用器材，今天就能開始',
-  '親身實測{n}個月後的真實心得',
-  '原來高手都是這樣做的，難怪差這麼多',
-  '新手最常踩的雷，這支一次幫你避開',
-  '看完這支，你會重新認識{kw}',
-  '別等到後悔，才知道這件事',
-  '一個觀念改變，結果天差地遠',
-  '沒有人告訴你的真相，我全說了',
-  '這{n}件事，越早知道越好'
-];
-/* 說明欄樣板 */
-function buildDescription(kw,n,niche){
-  return `${kw}的好處比你想的多！這支影片帶你快速了解 ${kw}，從入門到實際體驗，就算是初學者也能輕鬆跟上。
+/* 合規黑名單句型：產生後若命中就丟棄該標題 */
+const COMPLIANCE_BLACKLIST=[/醫生不會告訴你/, /治好了我/, /改善.{0,3}症狀/, /有效排毒/, /排毒/, /增強免疫/, /抗老回春/, /治療/, /治病/, /失眠/, /焦慮/];
+function complianceFix(s){let t=s;COMPLIANCE_MAP.forEach(([re,rep])=>{t=t.replace(re,rep);});return t;}
+function isCompliant(s){return !COMPLIANCE_BLACKLIST.some(re=>re.test(s));}
 
-很多人對 ${kw} 有興趣卻不知道怎麼開始，這裡用最簡單的方式整理出重點，幫你少走彎路、快速上手。看完記得實際試試看，效果會更有感。
+/* 關鍵字語意轉換：依方向把傳統語言轉成現代受眾語感 */
+function transformKeyword(kw,dir){
+  let k=complianceFix(kw);
+  return k;
+}
+
+/* 四大方向的合規標題公式庫（{kw}=關鍵字 {n}=數字），皆不含療效宣稱 */
+const DIRECTION_FORMULAS={
+  A:[ /* 心靈成長 */
+    '我用一招擺脫{n}年內耗',
+    '如果你每天都很累，那你一定要看這集',
+    '我花{n}分鐘學到這句話，結果改掉三個耗能習慣',
+    '讓我從每天消耗殆盡到狀態穩定的，就是這件小事',
+    '為什麼有些人永遠精力充沛？他們都在做這件事',
+    '{kw}這件事，幫我重新找回日常節奏',
+    '別再硬撐了，先看完這支再說',
+    '改變{kw}之後，我整個人的狀態都不一樣了'
+  ],
+  B:[ /* 科學驗證 */
+    '{kw}不是迷信，讓專家用科學解釋',
+    '專家告訴你：為什麼練{kw}的人身心狀態更穩定？',
+    '{kw}跟運動差在哪？影響的其實是這個',
+    '促進新陳代謝，這個方法比你以為的更簡單',
+    '調整體質不用花大錢，{kw}做對就夠了',
+    '研究發現，{kw}真正的關鍵在這裡',
+    '{kw}背後的科學，{n}分鐘幫你講清楚',
+    '原來{kw}的差別，差在這個你沒注意的細節'
+  ],
+  C:[ /* 人生改造 */
+    '她調整這件事之後，整個人狀態完全不同了',
+    '從內向自卑到在公司升主管，他到底怎麼做到的？',
+    '她每天累到不行，後來竟然找回精力了',
+    '他說他只是每天做這一件事，{n}個月後整個人節奏完全變了',
+    '連續{n}天調整{kw}後，我的日常感受有什麼不同？',
+    '{kw}改變的不只是身體，而是整個生活節奏',
+    '他靠{kw}重新出發，故事比你想的勵志',
+    '做了{kw}{n}個月，我的狀態為什麼差這麼多？'
+  ],
+  D:[ /* 生活挑戰 */
+    '{kw} {n}天，整個人狀態有什麼不同？（真實紀錄）',
+    '每天{n}分鐘{kw}，我的入睡狀態發生了什麼變化？',
+    '我連續{n}天做這件事，身體感受紀錄給你看',
+    '挑戰{n}天調整體質，第7天開始有感覺了',
+    '促進新陳代謝這件事，我實測{n}天後說老實話',
+    '{kw}實測{n}天，狀態紀錄全公開',
+    '每天堅持{kw}，{n}天後身體感受變化分享',
+    '{n}天{kw}挑戰，最有感的改變是這個'
+  ]
+};
+/* 副標題（合規版） */
+const SUBTITLE_FORMULAS=[
+  '親身實測{n}天後的真實狀態紀錄',
+  '不用花錢、不用器材，今天就能開始',
+  '一個小習慣改變，日常感受差很多',
+  '原來高手都是這樣做的，難怪狀態不同',
+  '新手最常忽略的地方，這支一次說清楚',
+  '看完這支，你會重新認識{kw}',
+  '狀態調整的關鍵，其實沒你想的複雜',
+  '這{n}件事，越早知道越好',
+  '把日常節奏找回來，從這件小事開始',
+  '真實感受分享，沒有誇大'
+];
+/* 內容方向自動判斷：依關鍵字與描述語意 */
+function detectDirection(topic,niche){
+  if(/內耗|焦慮|情緒|心態|壓力|累|心靈|療癒|靜心|冥想/.test(topic))return 'A';
+  if(/工研院|科學|研究|中醫|醫師|專家|原理|數據|實驗|證實/.test(topic))return 'B';
+  if(/改造|人生|故事|升遷|轉變|找回|重新|她|他/.test(topic))return 'C';
+  if(/\d+\s*天|挑戰|實測|紀錄|每天|連續/.test(topic))return 'D';
+  if(/健身|健康|養生|氣功|瑜伽|運動/.test(niche))return 'B';
+  return 'A';
+}
+/* 說明欄樣板（合規版） */
+function buildDescription(kw,n,niche){
+  return `這支影片帶你快速了解 ${kw}，從入門到實際感受，就算是初學者也能輕鬆跟上。
+
+很多人對 ${kw} 有興趣卻不知道怎麼開始，這裡用最簡單的方式整理出重點，幫你少走彎路、快速上手。看完記得實際試試看，從日常狀態的變化開始感受。
 
 ⏱️ 時間軸
 00:00 開場
@@ -319,53 +443,72 @@ function buildDescription(kw,n,niche){
 👉 如果這支對你有幫助，記得按讚 + 訂閱，並在留言區告訴我你最想了解 ${kw} 的哪個部分！
 🔗 更多相關影片播放清單：（在這裡放你的連結）
 
-#${kw} #${niche.split('/')[0]} #教學分享`;
+#${kw} #${niche.split('/')[0]} #狀態調整`;
 }
 
-function buildTitlePack(kw,n,niche){
+function buildTitlePack(kw,n,niche,direction){
   const suff=NICHE_KW[niche]||NICHE_KW['其他'];
   const head=niche.split('/')[0];
   const rnd=(a,b)=>Math.round(a+Math.random()*(b-a));
+  /* 關鍵字先做合規轉換 */
+  const tkw=transformKeyword(kw,direction);
   const keywords=[
-    {term:kw,volume:rnd(78,95),competition:'中',type:'主關鍵字'},
+    {term:tkw,volume:rnd(78,95),competition:'中',type:'主關鍵字'},
     {term:head,volume:rnd(88,99),competition:'高',type:'大字頭'},
-    {term:kw+' '+suff[0],volume:rnd(50,62),competition:'低',type:'長尾✅'},
-    {term:kw+' '+suff[1],volume:rnd(42,55),competition:'低',type:'長尾✅'},
-    {term:kw+' '+suff[2],volume:rnd(35,48),competition:'低',type:'長尾✅'},
-    {term:kw+' '+suff[3],volume:rnd(30,42),competition:'中',type:'長尾'},
-    {term:kw+' '+suff[4],volume:rnd(22,34),competition:'低',type:'長尾✅'},
-    {term:kw+' '+suff[5],volume:rnd(18,28),competition:'低',type:'長尾✅'}
+    {term:tkw+' '+suff[0],volume:rnd(50,62),competition:'低',type:'長尾✅'},
+    {term:tkw+' '+suff[1],volume:rnd(42,55),competition:'低',type:'長尾✅'},
+    {term:tkw+' '+suff[2],volume:rnd(35,48),competition:'低',type:'長尾✅'},
+    {term:tkw+' '+suff[3],volume:rnd(30,42),competition:'中',type:'長尾'},
+    {term:tkw+' '+suff[4],volume:rnd(22,34),competition:'低',type:'長尾✅'},
+    {term:tkw+' '+suff[5],volume:rnd(18,28),competition:'低',type:'長尾✅'}
   ];
-  /* 標題 + 配對副標 */
-  const ti=[...TITLE_FORMULAS.keys()].sort(()=>Math.random()-0.5).slice(0,5);
+  /* 依方向選公式庫，套入後做合規過濾，剔除命中黑名單者 */
+  const pool=DIRECTION_FORMULAS[direction]||DIRECTION_FORMULAS['A'];
+  const shuffled=[...pool.keys()].sort(()=>Math.random()-0.5);
   const si=[...SUBTITLE_FORMULAS.keys()].sort(()=>Math.random()-0.5);
-  const titles=ti.map((idx,k)=>({
-    main:TITLE_FORMULAS[idx].replace(/\{kw\}/g,kw).replace(/\{n\}/g,n),
-    sub:SUBTITLE_FORMULAS[si[k%si.length]].replace(/\{kw\}/g,kw).replace(/\{n\}/g,n)
-  }));
-  const hashtags=['#'+kw,'#'+head,'#'+suff[0].replace(/\s/g,''),'#教學分享'];
-  const videoTags=[kw,kw+' '+suff[0],kw+' '+suff[1],kw+' '+suff[2],kw+' '+suff[3],
-    head,kw+'教學',kw+'推薦',kw+' 心得',kw+' 入門'];
-  /* 5 款獨立副標建議（與標題配對的不重複，挑前 5 個不同公式） */
+  const titles=[];
+  for(const idx of shuffled){
+    if(titles.length>=5)break;
+    let m=complianceFix(pool[idx].replace(/\{kw\}/g,tkw).replace(/\{n\}/g,n));
+    if(!isCompliant(m))continue;
+    const sub=complianceFix(SUBTITLE_FORMULAS[si[titles.length%si.length]].replace(/\{kw\}/g,tkw).replace(/\{n\}/g,n));
+    titles.push({main:m,sub});
+  }
+  const hashtags=['#'+tkw,'#'+head,'#'+suff[0].replace(/\s/g,''),'#狀態調整'];
+  const videoTags=[tkw,tkw+' '+suff[0],tkw+' '+suff[1],tkw+' '+suff[2],tkw+' '+suff[3],
+    head,tkw+'分享',tkw+'推薦',tkw+' 心得',tkw+' 入門'];
+  /* 5 款獨立副標建議 */
   const subtitles=[...SUBTITLE_FORMULAS.keys()].sort(()=>Math.random()-0.5).slice(0,5)
-    .map(i=>SUBTITLE_FORMULAS[i].replace(/\{kw\}/g,kw).replace(/\{n\}/g,n));
-  return {keywords,mainKeyword:kw,titles,subtitles,description:buildDescription(kw,n,niche),hashtags,videoTags,
-    tips:`核心關鍵字「${kw}」已放進標題與說明欄前段。建議優先布局標示「✅」的低競爭長尾字，較容易在搜尋取得曝光。`};
+    .map(i=>complianceFix(SUBTITLE_FORMULAS[i].replace(/\{kw\}/g,tkw).replace(/\{n\}/g,n)));
+  const dirName={A:'心靈成長',B:'科學驗證',C:'人生改造',D:'生活挑戰'}[direction]||'';
+  return {keywords,mainKeyword:tkw,titles,subtitles,description:buildDescription(tkw,n,niche),hashtags,videoTags,direction:dirName,
+    tips:`核心關鍵字「${tkw}」已套用「${dirName}」方向的合規公式。建議優先布局標示「✅」的低競爭長尾字。`};
 }
 
 document.getElementById('genTitle').onclick=()=>{
-  const topic=document.getElementById('topic').value.trim();
-  if(!topic){alert('請描述影片內容');return;}
+  const ta=document.getElementById('topic');
+  const topic=ta.value.trim();
+  if(!topic){
+    ta.classList.add('err');
+    let e=document.getElementById('topicErr');
+    if(!e){e=document.createElement('p');e.id='topicErr';e.className='errmsg';e.textContent='請先描述你的影片內容再產生標題';ta.parentNode.insertBefore(e,ta.nextSibling);}
+    ta.focus();return;
+  }
   const niche=document.getElementById('niche').value;
+  let dir=document.getElementById('direction').value;
+  if(dir==='auto')dir=detectDirection(topic,niche);
   const kw=extractKeyword(topic), n=extractNum(topic);
-  titleData=buildTitlePack(kw,n,niche);
-  S.desc=titleData.description;S.hashtags=titleData.hashtags;S.tags=titleData.videoTags;S.keyword=kw;
+  titleData=buildTitlePack(kw,n,niche,dir);
+  S.desc=titleData.description;S.hashtags=titleData.hashtags;S.tags=titleData.videoTags;S.keyword=titleData.mainKeyword;
   renderTitle(titleData);
   document.getElementById('titleOut').scrollIntoView({behavior:'smooth'});
 };
+document.getElementById('topic').addEventListener('input',function(){
+  this.classList.remove('err');const e=document.getElementById('topicErr');if(e)e.remove();
+});
 function renderTitle(d){
   const out=document.getElementById('titleOut');let h='';
-  h+='<div class="card"><h3>🎯 核心關鍵字 <span class="pill">可手動修正，按下重產更精準</span></h3>'+
+  h+='<div class="card kwbox"><h3>🎯 核心關鍵字 <span class="tip">ⓘ<span class="tipbox">這是你要主打的搜尋關鍵字，2–6 字為佳，會影響標題、說明欄與標籤的生成結果。與「描述影片內容」不同：描述是用來理解你的主題，關鍵字是實際要搶的 SEO 字。</span></span> <span class="pill">可手動修正，按下重產更精準</span></h3>'+
      '<div style="display:flex;gap:8px;"><input type="text" id="kwEdit" value="'+d.mainKeyword+'" style="flex:1;">'+
      '<button class="btn" id="kwRedo" style="white-space:nowrap;">重新產生</button></div>'+
      '<p class="note">自動偵測的關鍵字若不理想（例如句子太長），改成你真正想主打的詞（2–6 字）再按重新產生。</p></div>';
@@ -373,11 +516,12 @@ function renderTitle(d){
   (d.keywords||[]).forEach(k=>{const cc=k.competition==='低'?'var(--ok)':k.competition==='高'?'var(--accent)':'var(--warn)';
     h+='<div class="kw"><span><b>'+k.term+'</b> <span class="small">'+(k.type||'')+'</span></span><span style="display:flex;align-items:center;gap:10px;min-width:170px;"><span style="flex:1;background:var(--line);border-radius:3px;"><span class="bar" style="width:'+(k.volume||50)+'%"></span></span><span style="color:'+cc+';font-size:12px;min-width:50px;text-align:right;">競爭'+k.competition+'</span></span></div>';});
   h+='<p class="note">💡 優先用「搜尋量高、競爭低」的長尾關鍵字。</p></div>';
-  h+='<div class="card"><h3>🎯 選一款標題 <span class="pill">含配對副標，點擊帶到封面與檢查</span></h3>';
+  h+='<div class="card"><h3>🎯 選一款標題 <span class="pill">'+(d.direction?('方向：'+d.direction+'・'):'')+'含配對副標，點擊帶到封面與檢查</span></h3>';
   (d.titles||[]).forEach((t,i)=>{h+='<div class="tpick" data-t="'+encodeURIComponent(t.main)+'" data-s="'+encodeURIComponent(t.sub||'')+'">'+
     '<span class="rk">標題 '+(i+1)+'</span>'+
     '<span class="txt"><div>'+t.main+'</div><div class="small" style="color:var(--muted);margin-top:3px;">副標：'+(t.sub||'')+'</div></span>'+
     '<span class="use">✓ 使用</span></div>';});
+  h+='<p class="note" style="color:var(--warn);">⚠️ 請確認標題不含療效宣稱（如改善、治療、排毒），如有疑慮請手動調整後使用。</p>';
   h+='</div>';
   h+='<div class="card"><h3>✨ 爆款副標建議 <span class="pill">5 款・點擊複製，或選標題時自動配一句</span></h3>';
   (d.subtitles||[]).forEach((s,i)=>{h+='<div class="tpick subpick" data-s="'+encodeURIComponent(s)+'"><span class="rk">副標 '+(i+1)+'</span><span class="txt">'+s+'</span><span class="use">📋 複製</span></div>';});
@@ -391,9 +535,11 @@ function renderTitle(d){
   if(redo)redo.onclick=()=>{
     const nk=document.getElementById('kwEdit').value.trim();if(!nk)return;
     const niche=document.getElementById('niche').value;
+    let dir=document.getElementById('direction').value;
+    if(dir==='auto')dir=detectDirection(document.getElementById('topic').value,niche);
     const n=extractNum(document.getElementById('topic').value);
-    titleData=buildTitlePack(nk,n,niche);
-    S.desc=titleData.description;S.hashtags=titleData.hashtags;S.tags=titleData.videoTags;S.keyword=nk;
+    titleData=buildTitlePack(nk,n,niche,dir);
+    S.desc=titleData.description;S.hashtags=titleData.hashtags;S.tags=titleData.videoTags;S.keyword=titleData.mainKeyword;
     renderTitle(titleData);
   };
   document.querySelectorAll('.subpick').forEach(el=>el.onclick=()=>{
@@ -408,6 +554,7 @@ function renderTitle(d){
     S.title=decodeURIComponent(el.dataset.t);
     S.subtitle=decodeURIComponent(el.dataset.s||'');
     document.getElementById('cTitle').value=S.title;
+    markStep('title');
     setTimeout(()=>go('thumb'),350);
   });
 }
@@ -416,7 +563,9 @@ function renderTitle(d){
 const cv=document.getElementById('cv'),ctx=cv.getContext('2d');
 let img=null, curTmpl='A';
 const $=id=>document.getElementById(id);
-const YELLOW='#F5C518';
+let YELLOW='#F5C518';          // active brand frame/accent color (mutable)
+let logoImg=null;              // active brand logo Image (or null = use text tag)
+function frameColor(){return $('frameColor')?$('frameColor').value:YELLOW;}
 
 /* template switch */
 document.querySelectorAll('.tmplPick').forEach(el=>el.onclick=()=>{
@@ -427,9 +576,6 @@ document.querySelectorAll('.tmplPick').forEach(el=>el.onclick=()=>{
   const isB=curTmpl==='B';
   $('smallText').style.display=isB?'block':'none';
   $('lblSmall').style.display=isB?'block':'none';
-  $('frameRow').style.display=isB?'none':'flex';
-  $('tagLabel').textContent=isB?'左上角「好氣補給站」標籤':'右上角「好氣補給站」標籤';
-  $('brandNote').textContent=isB?'版型 B：滿版圖、底部黑色色塊放副標，左上角品牌標籤固定。':'版型 A：黃黑外框、右上角品牌標籤固定。';
   draw();
 });
 
@@ -441,8 +587,20 @@ drop.ondrop=e=>{e.preventDefault();drop.style.borderColor='';if(e.dataTransfer.f
 file.onchange=e=>{if(e.target.files[0])loadImg(e.target.files[0]);};
 function loadImg(f){const r=new FileReader();r.onload=ev=>{img=new Image();img.onload=()=>{drop.innerHTML='✓ 已上傳，可在預覽圖上拖曳';draw();};img.src=ev.target.result;};r.readAsDataURL(f);}
 
-['mainText','subText','smallText','mainSize','subSize','mainColor','subColor','imgZoom','imgX','imgY','tagText','brandTag','brandFrame']
+['mainText','subText','smallText','mainSize','subSize','mainColor','subColor','mainX','mainY','subX','subY','imgZoom','imgX','imgY','tagText','frameColor','brandTag','brandFrame']
   .forEach(id=>{const e=$(id);if(e){e.addEventListener('input',draw);e.addEventListener('change',draw);}});
+function updateSliderVals(){
+  const set=(id,v)=>{const e=$(id);if(e)e.textContent=v;};
+  set('imgZoomV',(+$('imgZoom').value/100).toFixed(1)+'x');
+  set('imgXV',Math.round(+$('imgX').value)+'%');
+  set('imgYV',Math.round(+$('imgY').value)+'%');
+  set('mainXV',Math.round(+$('mainX').value)+'%');
+  set('mainYV',Math.round(+$('mainY').value)+'%');
+  set('subXV',Math.round(+$('subX').value)+'%');
+  set('subYV',Math.round(+$('subY').value)+'%');
+}
+['imgZoom','imgX','imgY','mainX','mainY','subX','subY'].forEach(id=>{const e=$(id);if(e)e.addEventListener('input',updateSliderVals);});
+updateSliderVals();
 $('applyTmpl').onclick=()=>{draw();cv.scrollIntoView({behavior:'smooth'});};
 
 /* ---- drag on canvas to reposition subject (updates imgX/imgY sliders) ---- */
@@ -456,6 +614,7 @@ window.addEventListener('mousemove',e=>{
   const dyPct=( (e.clientY-dragSY)*s /cv.height )*100*2.2;
   $('imgX').value=Math.max(-60,Math.min(160,startX+dxPct));
   $('imgY').value=Math.max(-60,Math.min(160,startY+dyPct));
+  updateSliderVals();
   draw();
 });
 window.addEventListener('mouseup',()=>{if(dragging){dragging=false;cv.style.cursor='grab';}});
@@ -463,7 +622,7 @@ window.addEventListener('mouseup',()=>{if(dragging){dragging=false;cv.style.curs
 cv.addEventListener('touchstart',e=>{if(!img)return;dragging=true;const t=e.touches[0];dragSX=t.clientX;dragSY=t.clientY;startX=+$('imgX').value;startY=+$('imgY').value;},{passive:true});
 window.addEventListener('touchmove',e=>{if(!dragging)return;const t=e.touches[0];const s=cvScale();
   $('imgX').value=Math.max(-60,Math.min(160,startX+((t.clientX-dragSX)*s/cv.width)*100*2.2));
-  $('imgY').value=Math.max(-60,Math.min(160,startY+((t.clientY-dragSY)*s/cv.height)*100*2.2));draw();},{passive:true});
+  $('imgY').value=Math.max(-60,Math.min(160,startY+((t.clientY-dragSY)*s/cv.height)*100*2.2));updateSliderVals();draw();},{passive:true});
 window.addEventListener('touchend',()=>{dragging=false;});
 
 function rr(c,x,y,w,h,r){c.beginPath();c.moveTo(x+r,y);c.arcTo(x+w,y,x+w,y+h,r);c.arcTo(x+w,y+h,x,y+h,r);c.arcTo(x,y+h,x,y,r);c.arcTo(x,y,x+w,y,r);c.closePath();}
@@ -484,8 +643,15 @@ function drawSubject(c,ix,iy,iw,ih){
   }
 }
 
-/* draw 好氣補給站 brand tag + smiley sun + lightning at given center-left text anchor */
+/* draw brand element: uploaded logo if present, else 好氣補給站-style text tag */
 function drawBrandTag(c,sunCx,sunCy){
+  if(logoImg){
+    // draw logo right-aligned at the tag anchor, capped height
+    const maxH=90, scale=maxH/logoImg.height, lw=logoImg.width*scale, lh=logoImg.height*scale;
+    c.drawImage(logoImg, sunCx+30-lw, sunCy-lh/2, lw, lh);
+    return;
+  }
+  const accent=frameColor();
   const tag=$('tagText').value||'好氣補給站';
   const tfs=50;c.font='900 '+tfs+'px "Noto Sans TC",sans-serif';
   const head=tag.slice(0,2), rest=tag.slice(2), sunR=27;
@@ -493,13 +659,13 @@ function drawBrandTag(c,sunCx,sunCy){
   const tx=sunCx-sunR-20-tw, tcy=sunCy+tfs*0.34;
   c.textAlign='left';c.textBaseline='alphabetic';c.lineJoin='round';
   c.lineWidth=10;c.strokeStyle='#000';c.strokeText(head,tx,tcy);
-  c.fillStyle=YELLOW;c.fillText(head,tx,tcy);
+  c.fillStyle=accent;c.fillText(head,tx,tcy);
   const hw=c.measureText(head).width;
   c.lineWidth=10;c.strokeStyle='#000';c.strokeText(rest,tx+hw,tcy);
   c.fillStyle='#fff';c.fillText(rest,tx+hw,tcy);
-  c.strokeStyle='#F2C200';c.lineWidth=5;c.lineCap='round';
+  c.strokeStyle=accent;c.lineWidth=5;c.lineCap='round';
   for(let i=0;i<12;i++){const a=i*Math.PI/6;c.beginPath();c.moveTo(sunCx+Math.cos(a)*(sunR+6),sunCy+Math.sin(a)*(sunR+6));c.lineTo(sunCx+Math.cos(a)*(sunR+16),sunCy+Math.sin(a)*(sunR+16));c.stroke();}
-  c.beginPath();c.arc(sunCx,sunCy,sunR,0,7);c.fillStyle='#FBD848';c.fill();c.lineWidth=3;c.strokeStyle='#E0AE00';c.stroke();
+  c.beginPath();c.arc(sunCx,sunCy,sunR,0,7);c.fillStyle=accent;c.fill();c.lineWidth=3;c.strokeStyle='#00000033';c.stroke();
   c.fillStyle='#F5A3A3';c.beginPath();c.ellipse(sunCx-12,sunCy+5,6,4,0,0,7);c.fill();c.beginPath();c.ellipse(sunCx+12,sunCy+5,6,4,0,0,7);c.fill();
   c.strokeStyle='#5a4a00';c.lineWidth=3;
   c.beginPath();c.arc(sunCx-10,sunCy-3,5,Math.PI*0.15,Math.PI*0.85);c.stroke();
@@ -507,7 +673,7 @@ function drawBrandTag(c,sunCx,sunCy){
   c.beginPath();c.arc(sunCx,sunCy+4,8,Math.PI*0.1,Math.PI*0.9);c.stroke();
   const lx=sunCx-sunR-19, ly=sunCy+sunR-2;
   c.beginPath();c.moveTo(lx+12,ly-18);c.lineTo(lx-2,ly+4);c.lineTo(lx+8,ly+4);c.lineTo(lx-2,ly+26);c.lineTo(lx+20,ly-3);c.lineTo(lx+9,ly-3);c.closePath();
-  c.fillStyle='#FFD000';c.fill();c.lineWidth=3.5;c.strokeStyle='#000';c.lineJoin='round';c.stroke();c.lineCap='butt';
+  c.fillStyle=accent;c.fill();c.lineWidth=3.5;c.strokeStyle='#000';c.lineJoin='round';c.stroke();c.lineCap='butt';
 }
 
 /* draw subtitle line with 「」/markers highlighted yellow */
@@ -517,7 +683,7 @@ function drawSubLine(c,ln,leftX,yy,sfs,scol){
   parts.forEach(p=>{if(!p)return;const w=c.measureText(p).width;
     if(p.startsWith('「')&&p.endsWith('」')){
       c.lineJoin='round';c.lineWidth=sfs*0.16;c.strokeStyle='#000';c.strokeText(p,cursor,yy);
-      c.fillStyle=YELLOW;c.fillText(p,cursor,yy);
+      c.fillStyle=frameColor();c.fillText(p,cursor,yy);
     }else{
       c.lineJoin='round';c.lineWidth=sfs*0.16;c.strokeStyle='#000';c.strokeText(p,cursor,yy);
       c.fillStyle=scol;c.fillText(p,cursor,yy);
@@ -555,7 +721,7 @@ $('mainText').addEventListener('input',refreshPromptBox);
 function drawA(){
   const W=1280,H=720,c=ctx;c.clearRect(0,0,W,H);
   const frameOn=$('brandFrame').checked, pad=frameOn?26:0;
-  if(frameOn){c.fillStyle=YELLOW;rr(c,0,0,W,H,40);c.fill();}
+  if(frameOn){c.fillStyle=frameColor();rr(c,0,0,W,H,40);c.fill();}
   const ix=pad,iy=pad,iw=W-pad*2,ih=H-pad*2;
   c.save();rr(c,ix,iy,iw,ih,frameOn?26:0);c.clip();
   c.fillStyle='#000';c.fillRect(ix,iy,iw,ih);
@@ -564,19 +730,21 @@ function drawA(){
   const mt=$('mainText').value.trim();
   if(mt){
     const fs=+$('mainSize').value, col=$('mainColor').value;
-    c.font='900 '+fs+'px "Noto Sans TC",sans-serif';c.textAlign='right';
-    const lines=wrapAuto(c,mt,iw*0.62);const lh=fs*1.18, rightX=ix+iw-50;
-    let by=iy+ih*0.42;
-    lines.forEach((ln,i)=>{const yy=by+i*lh;c.lineJoin='round';c.lineWidth=fs*0.16;c.strokeStyle='#000';c.strokeText(ln,rightX,yy);c.fillStyle=col;c.fillText(ln,rightX,yy);});
-    const st=$('subText').value.trim();
-    if(st){const sfs=+$('subSize').value, scol=$('subColor').value;
-      c.font='900 '+sfs+'px "Noto Sans TC",sans-serif';c.textAlign='left';
-      const slines=st.split('\n');const slh=sfs*1.28, leftX=ix+45;let sy=by+lines.length*lh+sfs*0.6;
-      slines.forEach((ln,i)=>drawSubLine(c,ln,leftX,sy+i*slh,sfs,scol));
-    }
+    const mx=ix+iw*(+$('mainX').value/100), my=iy+ih*(+$('mainY').value/100);
+    c.font='900 '+fs+'px "Noto Sans TC",sans-serif';c.textAlign='center';
+    const lines=wrapAuto(c,mt,iw*0.9);const lh=fs*1.18;
+    let by=my-(lines.length-1)*lh/2;
+    lines.forEach((ln,i)=>{const yy=by+i*lh;c.lineJoin='round';c.lineWidth=fs*0.16;c.strokeStyle='#000';c.strokeText(ln,mx,yy);c.fillStyle=col;c.fillText(ln,mx,yy);});
+  }
+  const st=$('subText').value.trim();
+  if(st){const sfs=+$('subSize').value, scol=$('subColor').value;
+    const sx=ix+iw*(+$('subX').value/100), sy0=iy+ih*(+$('subY').value/100);
+    c.font='900 '+sfs+'px "Noto Sans TC",sans-serif';c.textAlign='left';
+    const slines=st.split('\n');const slh=sfs*1.28;
+    slines.forEach((ln,i)=>drawSubLine(c,ln,sx,sy0+i*slh,sfs,scol));
   }
   if($('brandTag').checked)drawBrandTag(c,ix+iw-66,iy+56);
-  if(frameOn){c.lineWidth=pad;c.strokeStyle=YELLOW;rr(c,pad/2,pad/2,W-pad,H-pad,32);c.stroke();}
+  if(frameOn){c.lineWidth=pad;c.strokeStyle=frameColor();rr(c,pad/2,pad/2,W-pad,H-pad,32);c.stroke();}
 }
 
 /* ---------- TEMPLATE B: full-bleed image, center title, bottom black bar ---------- */
@@ -586,41 +754,129 @@ function drawB(){
   drawSubject(c,0,0,W,H);
   // bottom black bar
   const barH=170;c.fillStyle='#000';c.fillRect(0,H-barH,W,barH);
-  // main title centered upper
+  // main title positioned by sliders
   const mt=$('mainText').value.trim();
   if(mt){
     const fs=+$('mainSize').value, col=$('mainColor').value;
+    const mx=W*(+$('mainX').value/100), my=H*(+$('mainY').value/100);
     c.font='900 '+fs+'px "Noto Sans TC",sans-serif';c.textAlign='center';
-    const lines=wrapAuto(c,mt,W*0.7);const lh=fs*1.12;
-    let by=H*0.3 - (lines.length-1)*lh/2;
-    lines.forEach((ln,i)=>{const yy=by+i*lh;c.lineJoin='round';c.lineWidth=fs*0.18;c.strokeStyle='#000';c.strokeText(ln,W/2,yy);c.fillStyle=col;c.fillText(ln,W/2,yy);});
+    const lines=wrapAuto(c,mt,W*0.86);const lh=fs*1.12;
+    let by=my-(lines.length-1)*lh/2;
+    lines.forEach((ln,i)=>{const yy=by+i*lh;c.lineJoin='round';c.lineWidth=fs*0.18;c.strokeStyle='#000';c.strokeText(ln,mx,yy);c.fillStyle=col;c.fillText(ln,mx,yy);});
   }
-  // small line above subtitle (inside bar)
+  // small line + subtitle positioned by sliders (block anchored at subX/subY)
   const small=$('smallText').value.trim();
   const st=$('subText').value.trim();
   const sfs=+$('subSize').value, scol=$('subColor').value;
-  const leftX=46;
-  let baseY=H-barH+ (small? 54 : barH/2+sfs*0.35);
+  const sx=W*(+$('subX').value/100), sBaseY=H*(+$('subY').value/100);
   if(small){
     c.textAlign='left';c.font='800 '+(sfs*0.74)+'px "Noto Sans TC",sans-serif';
-    c.fillStyle='#fff';c.fillText(small,leftX,baseY);
+    c.fillStyle='#fff';c.fillText(small,sx,sBaseY);
   }
   if(st){
     c.textAlign='left';c.font='900 '+sfs+'px "Noto Sans TC",sans-serif';
-    const sy=small? baseY+sfs*1.15 : baseY;
-    drawSubLine(c,st.split('\n')[0],leftX,sy,sfs,scol);
+    const sy=small? sBaseY+sfs*1.15 : sBaseY;
+    drawSubLine(c,st.split('\n')[0],sx,sy,sfs,scol);
   }
   // brand tag top-LEFT for template B
   if($('brandTag').checked){
-    const tag=$('tagText').value||'好氣補給站';
-    c.font='900 50px "Noto Sans TC",sans-serif';
-    const tw=c.measureText(tag).width;
-    drawBrandTag(c, 66+tw+20+27, 58); // place so text starts ~near left edge
+    if(logoImg){drawBrandTag(c, 66+90, 64);}
+    else{
+      const tag=$('tagText').value||'好氣補給站';
+      c.font='900 50px "Noto Sans TC",sans-serif';
+      const tw=c.measureText(tag).width;
+      drawBrandTag(c, 66+tw+20+27, 58);
+    }
   }
 }
 draw();
 
-$('dl').onclick=()=>{const a=document.createElement('a');a.download='cover.png';a.href=cv.toDataURL('image/png');a.click();};
+/* ===== 多品牌系統（localStorage 記住） ===== */
+const BRAND_KEY='ytToolBrands_v1';
+const DEFAULT_BRANDS={
+  '好氣補給站':{frameColor:'#F5C518',frameOn:true,tagOn:true,tagText:'好氣補給站',logo:null}
+};
+function loadBrands(){
+  try{const s=localStorage.getItem(BRAND_KEY);if(s)return JSON.parse(s);}catch(e){}
+  return JSON.parse(JSON.stringify(DEFAULT_BRANDS));
+}
+function saveBrands(b){try{localStorage.setItem(BRAND_KEY,JSON.stringify(b));}catch(e){alert('儲存失敗：瀏覽器空間可能不足（Logo 太大）。請改用較小的 Logo。');}}
+let brands=loadBrands();
+let currentLogoData=null; // data URL of logo for the brand currently being edited
+
+function renderBrandSelect(sel){
+  const dd=$('brandSelect');dd.innerHTML='';
+  Object.keys(brands).forEach(name=>{const o=document.createElement('option');o.value=name;o.textContent=name;dd.appendChild(o);});
+  if(sel&&brands[sel])dd.value=sel;
+}
+function applyBrand(name){
+  const b=brands[name];if(!b)return;
+  $('frameColor').value=b.frameColor||'#F5C518';
+  $('brandFrame').checked=b.frameOn!==false;
+  $('brandTag').checked=b.tagOn!==false;
+  $('tagText').value=b.tagText||'';
+  currentLogoData=b.logo||null;
+  if(b.logo){logoImg=new Image();logoImg.onload=draw;logoImg.src=b.logo;$('logoName').textContent='已套用 Logo';$('logoClear').style.display='inline-block';}
+  else{logoImg=null;$('logoName').textContent='尚未上傳（使用文字標籤）';$('logoClear').style.display='none';}
+  YELLOW=b.frameColor||'#F5C518';
+  draw();
+}
+$('brandSelect').addEventListener('change',e=>applyBrand(e.target.value));
+
+/* logo upload with downscale+compress to keep localStorage small */
+$('logoBtn').onclick=()=>$('logoFile').click();
+$('logoFile').onchange=e=>{
+  const f=e.target.files[0];if(!f)return;
+  const r=new FileReader();
+  r.onload=ev=>{
+    const im=new Image();
+    im.onload=()=>{
+      const maxW=300, scale=Math.min(1,maxW/im.width);
+      const cw=Math.round(im.width*scale), ch=Math.round(im.height*scale);
+      const tmp=document.createElement('canvas');tmp.width=cw;tmp.height=ch;
+      tmp.getContext('2d').drawImage(im,0,0,cw,ch);
+      currentLogoData=tmp.toDataURL('image/png');
+      logoImg=new Image();logoImg.onload=draw;logoImg.src=currentLogoData;
+      $('logoName').textContent='已上傳 Logo（記得按儲存）';$('logoClear').style.display='inline-block';
+    };
+    im.src=ev.target.result;
+  };
+  r.readAsDataURL(f);
+};
+$('logoClear').onclick=()=>{currentLogoData=null;logoImg=null;$('logoFile').value='';$('logoName').textContent='尚未上傳（使用文字標籤）';$('logoClear').style.display='none';draw();};
+
+/* save current settings as a brand */
+$('brandSave').onclick=()=>{
+  let name=$('brandSelect').value;
+  const isDefault=(name==='好氣補給站');
+  if(isDefault){
+    const nn=prompt('「好氣補給站」是預設品牌。請輸入新品牌名稱另存：','我的品牌');
+    if(!nn)return;name=nn.trim();if(!name)return;
+  }
+  brands[name]={frameColor:$('frameColor').value,frameOn:$('brandFrame').checked,tagOn:$('brandTag').checked,tagText:$('tagText').value,logo:currentLogoData};
+  saveBrands(brands);renderBrandSelect(name);
+  alert('已儲存品牌「'+name+'」');
+};
+/* new brand */
+$('brandNew').onclick=()=>{
+  const nn=prompt('新品牌名稱：','新品牌');if(!nn)return;const name=nn.trim();if(!name)return;
+  brands[name]={frameColor:'#3b82f6',frameOn:true,tagOn:true,tagText:name,logo:null};
+  saveBrands(brands);renderBrandSelect(name);applyBrand(name);
+};
+/* delete brand */
+$('brandDelete').onclick=()=>{
+  const name=$('brandSelect').value;
+  if(name==='好氣補給站'){alert('預設品牌不可刪除。');return;}
+  if(!confirm('確定刪除品牌「'+name+'」？'))return;
+  delete brands[name];saveBrands(brands);
+  const first=Object.keys(brands)[0];renderBrandSelect(first);applyBrand(first);
+};
+/* init brands UI */
+renderBrandSelect();
+applyBrand($('brandSelect').value);
+
+$('dl').onclick=()=>{const a=document.createElement('a');a.download='cover.png';a.href=cv.toDataURL('image/png');a.click();markStep('thumb');};
+
 
 /* bridge: when arriving from step 1, auto-fill MAIN title from chosen title */
 function condenseTitle(t){
@@ -646,6 +902,7 @@ function syncThumb(){
 }
 refreshPromptBox();
 /* ============ STEP 3: CHECK ============ */
+document.getElementById('cDesc').addEventListener('input',function(){autoGrow(this);});
 document.getElementById('runCheck').onclick=()=>{
   const t=document.getElementById('cTitle').value.trim();
   const dsc=document.getElementById('cDesc').value.trim();
